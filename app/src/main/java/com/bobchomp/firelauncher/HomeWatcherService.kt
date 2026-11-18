@@ -89,13 +89,8 @@ class HomeWatcherService : Service() {
         val components = COMPONENT.findAll(line).map { it.value }.filter { "/" in it && !it.startsWith("I/") }.toList()
         if (components.any { it in stockHome.components }) {
             Log.i(TAG, "Stock home ${if (homeStart) "started" else "resumed"}; bringing launcher forward")
-            // The overlay covers the stock home at once; the activity follows when
-            // Android allows it (up to ~5 s after a Home press).
-            LauncherOverlay.show(this)
+            // Preserve the original fast Home redirect without showing an intro.
             HomeRedirect.bringLauncherToFront(this, fromHomeKey = homeStart)
-        } else if (resumed && components.isNotEmpty()) {
-            // Something else (our launcher or an app) is on screen now.
-            LauncherOverlay.hide()
         }
     }
 
