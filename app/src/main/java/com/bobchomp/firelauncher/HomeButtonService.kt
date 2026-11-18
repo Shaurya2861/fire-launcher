@@ -39,6 +39,8 @@ class HomeButtonService : AccessibilityService() {
         // Consume both down and up so the system never sees half a press.
         // Long-pressing Home (the Fire TV quick menu) is consumed too.
         if (event.action == KeyEvent.ACTION_UP && !event.isCanceled) {
+            // Show the cinematic cover before the direct Couchy launch.
+            LauncherOverlay.show(this)
             HomeRedirect.bringLauncherToFront(this, fromHomeKey = true)
         }
         return true
@@ -50,6 +52,8 @@ class HomeButtonService : AccessibilityService() {
         if (pkg !in stockHome.packages) return
         val cls = event.className?.toString()
         if (cls in stockHome.activityClasses) {
+            // Also cover the stock home when accessibility detects it as a fallback.
+            LauncherOverlay.show(this)
             HomeRedirect.bringLauncherToFront(this, fromHomeKey = false)
         } else {
             // Other screens from the stock launcher package are left alone. Logged so a
