@@ -1,8 +1,10 @@
-
 name: Build Fire Launcher
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - couchy-auto-launch-original-base
 
 permissions:
   contents: read
