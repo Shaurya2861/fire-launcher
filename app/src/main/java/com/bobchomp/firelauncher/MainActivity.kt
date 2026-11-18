@@ -41,21 +41,18 @@ class MainActivity : ComponentActivity() {
 
         HomeWatcherService.start(this)
 
-        // Keep the original launcher as a real fallback, but hand off to Couchy
-        // immediately whenever this bridge activity itself is opened.
-        LauncherOverlay.show(this)
+        // Keep the original launcher as a real fallback, and hand off to Couchy
+        // immediately whenever this bridge activity itself is opened. No intro overlay.
         mainHandler.post {
             val couchyIntent = packageManager.getLaunchIntentForPackage(COUCHY_PACKAGE)
                 ?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             if (couchyIntent == null) {
                 Log.w(TAG, "Couchy TV is not installed; keeping the original launcher visible")
-                LauncherOverlay.hide()
                 return@post
             }
             runCatching { startActivity(couchyIntent) }
                 .onFailure {
                     Log.w(TAG, "Couldn't open Couchy TV; keeping the original launcher visible", it)
-                    LauncherOverlay.hide()
                 }
         }
     }
