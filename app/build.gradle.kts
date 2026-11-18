@@ -7,11 +7,11 @@ plugins {
 
 // Bump both together for each release. The version also goes into the APK file name,
 // e.g. fire-launcher-1.1-release.apk.
-val appVersionCode = 3
-val appVersionName = "1.2"
+val appVersionCode = 4
+val appVersionName = "1.3-couchy"
 
 base {
-    archivesName.set("fire-launcher-$appVersionName")
+    archivesName.set("couchy-experiment-$appVersionName")
 }
 
 android {
@@ -19,7 +19,7 @@ android {
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "com.bobchomp.firelauncher"
+        applicationId = "com.bobchomp.firelauncher.experimental"
         minSdk = 25 // Fire OS 6 (Android 7.1)
         targetSdk = 36
         versionCode = appVersionCode
