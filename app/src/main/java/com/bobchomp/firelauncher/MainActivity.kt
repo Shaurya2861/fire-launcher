@@ -1,59 +1,51 @@
 package com.bobchomp.firelauncher
 
-import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.BackHandler
-import androidx.activity.compose.setContent
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import com.bobchomp.firelauncher.ui.LauncherScreen
-import com.bobchomp.firelauncher.ui.LauncherTheme
 
+/**
+ * The experimental app is a bridge, not a second launcher UI.
+ * Opening it manually should produce the same Couchy hand-off as pressing Home.
+ */
 class MainActivity : ComponentActivity() {
 
-    private var homePresses by mutableIntStateOf(0)
-    private var homeRedirectOn by mutableStateOf(true)
+    private val main = Handler(Looper.getMainLooper())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        LauncherModel.init(this)
-
-        setContent {
-            // This is the home screen: Back has nowhere to go.
-            BackHandler {}
-            LauncherTheme {
-                LauncherScreen(
-                    apps = LauncherModel.apps,
-                    artLoader = LauncherModel.artLoader,
-                    homePresses = homePresses,
-                    homeRedirectOn = homeRedirectOn,
-                    onLaunch = { LauncherModel.launch(this, it) },
-                    onOpenSettings = { LauncherModel.openSettings(this) },
-                )
-            }
-        }
 
         HomeWatcherService.start(this)
+        LauncherOverlay.show(this)
+
+        main.postDelayed({
+            val launchIntent = packageManager.getLaunchIntentForPackage("com.conreo.couchytv")
+            if (launchIntent == null) {
+                Log.e(TAG, "Couchy TV is not installed or has no launch activity")
+                LauncherOverlay.hide()
+                finish()
+                return@postDelayed
+            }
+
+            launchIntent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK or
+                android.content.Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
+            runCatching { startActivity(launchIntent) }
+                .onFailure {
+                    Log.e(TAG, "Couldn't launch Couchy TV", it)
+                    LauncherOverlay.hide()
+                }
+            finish()
+        }, 250L)
     }
 
-    override fun onResume() {
-        super.onResume()
-        // The real launcher is up: the stand-in overlay (if any) can go.
-        LauncherOverlay.hide()
-        homeRedirectOn = HomeWatcherService.canReadLogs(this) || HomeButtonService.isEnabled(this)
-    }
-
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        // Pressing Home while already home jumps back to the first app, like other launchers.
-        // Coming back via Back out of an app keeps focus where it was.
-        if (intent.getBooleanExtra(EXTRA_FROM_HOME_KEY, false)) homePresses++
+    override fun onDestroy() {
+        main.removeCallbacksAndMessages(null)
+        super.onDestroy()
     }
 
     companion object {
-        const val EXTRA_FROM_HOME_KEY = "com.bobchomp.firelauncher.FROM_HOME_KEY"
+        private const val TAG = "CouchyBridge"
     }
 }
