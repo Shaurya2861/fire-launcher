@@ -98,12 +98,12 @@ class CouchyIntroView(context: Context) : View(context) {
             val count = (rate * 1.32f).toInt()
             val pcm = ShortArray(count)
             for (i in 0 until count) {
-                val t = i.toFloat() / rate
-                val hit1 = exp(-t * 7.5f) * sin(2.0 * Math.PI * (48.0 * t - 8.0 * t * t)).toFloat()
-                val dt = t - 0.48f
-                val hit2 = if (dt >= 0f) exp(-dt * 11f) * sin(2.0 * Math.PI * (92.0 * dt - 12.0 * dt * dt)).toFloat() else 0f
-                val air = if (t > 0.5f) exp(-(t - 0.5f) * 5.5f) * sin(2.0 * Math.PI * (310.0 * t)).toFloat() * 0.08f else 0f
-                val sample = (hit1 * 0.48f + hit2 * 0.28f + air).coerceIn(-0.9f, 0.9f)
+                val t = i.toDouble() / rate
+                val hit1 = exp(-t * 7.5) * sin(2.0 * Math.PI * (48.0 * t - 8.0 * t * t))
+                val dt = t - 0.48
+                val hit2 = if (dt >= 0.0) exp(-dt * 11.0) * sin(2.0 * Math.PI * (92.0 * dt - 12.0 * dt * dt)) else 0.0
+                val air = if (t > 0.5) exp(-(t - 0.5) * 5.5) * sin(2.0 * Math.PI * (310.0 * t)) * 0.08 else 0.0
+                val sample = (hit1 * 0.48 + hit2 * 0.28 + air).coerceIn(-0.9, 0.9)
                 pcm[i] = (sample * Short.MAX_VALUE).toInt().toShort()
             }
             val attrs = AudioAttributes.Builder()
