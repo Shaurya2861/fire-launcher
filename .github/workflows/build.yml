@@ -3,6 +3,9 @@ name: Build Fire Launcher
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - couchy-cinematic-experiment
 
 permissions:
   contents: read
@@ -36,6 +39,6 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: fire-launcher-apk
+          name: couchy-cinematic-experiment-apk
           path: app/build/outputs/apk/release/*.apk
           if-no-files-found: error
