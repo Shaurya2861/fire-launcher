@@ -115,7 +115,7 @@ class CouchyIntroView(context: Context) : View(context) {
                 .setSampleRate(rate)
                 .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
                 .build()
-            val track = AudioTrack(attrs, format, pcm.size * 2, AudioTrack.MODE_STATIC, AudioTrack.AUDIO_SESSION_ID_GENERATE)
+            val track = AudioTrack(attrs, format, pcm.size * 2, AudioTrack.MODE_STATIC, 0)
             track.write(pcm, 0, pcm.size)
             track.setVolume(0.72f)
             sound = track
