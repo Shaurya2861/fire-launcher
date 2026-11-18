@@ -78,9 +78,19 @@ object LauncherOverlay {
     private fun hideOnMain() {
         main.removeCallbacks(autoHide)
         val view = root ?: return
-        runCatching { wm(view.context).removeView(view) }
-        root = null
-        Log.i(TAG, "Couchy intro hidden")
+        // Fade the glass away over the already-resumed Couchy screen.
+        view.animate().cancel()
+        view.animate()
+            .alpha(0f)
+            .setDuration(520L)
+            .withEndAction {
+                if (root === view) {
+                    runCatching { wm(view.context).removeView(view) }
+                    root = null
+                    Log.i(TAG, "Couchy intro faded away")
+                }
+            }
+            .start()
     }
 
     private fun wm(context: Context) =
