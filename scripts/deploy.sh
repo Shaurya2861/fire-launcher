@@ -11,7 +11,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-PKG=com.bobchomp.firelauncher
+PKG=com.bobchomp.firelauncher.experimental
 SERVICE="$PKG/$PKG.HomeButtonService"
 target="${1:-}"
 apk="${2:-}"
